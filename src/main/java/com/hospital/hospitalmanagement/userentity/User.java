@@ -2,6 +2,8 @@ package com.hospital.hospitalmanagement.userentity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -24,10 +26,14 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @CreationTimestamp  // ✅ sets value automatically at insert
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp   // ✅ updates value automatically on update
     private LocalDateTime updatedAt;
 
-    private int status;
+    @Builder.Default
+    private int status = 1;  // ✅ default to 1 if not explicitly set
 
     public enum Role {
         DOCTOR,

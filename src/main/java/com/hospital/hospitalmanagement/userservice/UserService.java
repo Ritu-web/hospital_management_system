@@ -40,6 +40,12 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public Optional<User> getUserByPhone(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
+    }
 
-}
+
+     }
+
+
 

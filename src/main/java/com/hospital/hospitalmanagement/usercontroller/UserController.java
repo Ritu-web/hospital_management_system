@@ -1,18 +1,16 @@
 package com.hospital.hospitalmanagement.usercontroller;
 import com.hospital.hospitalmanagement.userentity.User;
 import com.hospital.hospitalmanagement.userservice.UserService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
 import com.hospital.hospitalmanagement.dto.ErrorResponse;
 
 @RestController
@@ -70,9 +68,40 @@ public class UserController {
             ErrorResponse error = new ErrorResponse(400, "Phone number must be exactly 10 digits");
             return ResponseEntity.status(400).body(error);
         }
-        return userService.getUserByPhone(phoneNumber)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return userService.getUserByPhone(phoneNumber).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+        System.out.println("*****************Controller: LINE 81 **************************************" + id + "REQUEST BODY" + updatedUser);
+        Optional<User> existingUserOpt = userService.getUserById(id);
+
+        if (existingUserOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("User not found with ID " + id);
+        }
+
+        User existingUser = existingUserOpt.get();
+
+        // ✅ Update fields only if non-null
+        if (updatedUser.getFirstName() != null) {
+            existingUser.setFirstName(updatedUser.getFirstName());
+        }
+        if (updatedUser.getLastName() != null) {
+            existingUser.setLastName(updatedUser.getLastName());
+        }
+        if (updatedUser.getPhoneNumber() != null) {
+            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
+        }
+        if (updatedUser.getRole() != null) {
+            existingUser.setRole(updatedUser.getRole());
+        }
+
+        existingUser.setUpdatedAt(LocalDateTime.now());
+
+        User savedUser = userService.createUser(existingUser); // save updated user
+        return ResponseEntity.ok(savedUser);
+    }
+
+
 }
 
